@@ -32,6 +32,7 @@ export const getuser = (token) => {
 export const postLogin =(user,token) =>{
     return new Promise(async(resolve,reject)=>{
        await AsyncStorage.clear();
+       console.log('token',token);
        await Storeit('token',token);
        const fetchedRoutines= await checkAndFetchStoreRoutineAll(user.routines);
        console.log(fetchedRoutines,"fetched routines");

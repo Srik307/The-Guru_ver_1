@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function SignupPage({ navigation }) {
+  
   return (
     <View style={styles.container}>
       {/* Ensure the image format is correct */}

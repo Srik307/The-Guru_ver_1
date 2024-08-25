@@ -31,6 +31,8 @@ export default function LoginPage({ navigation }) {
         console.log(data.error);
       }
       else{
+        console.log(data.token);
+        
         setToken(data.token);
         let curuser=await getuser(data.token);
         setUser(curuser);
