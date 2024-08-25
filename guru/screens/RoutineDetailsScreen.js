@@ -74,14 +74,14 @@ export default function RoutineDetailsScreen({ route, navigation }) {
         <>
           <Text style={styles.title}>{routine.name}</Text>
           <Text>{routine.des}</Text>
-          {routine.img && <Image source={{ uri: `${`http://${ip}:3000/uploads${routine.img.src}`}?t="020"` || "" }} style={styles.image} />}
+          {routine.img && <Image source={{ uri: `${`${ip}/uploads${routine.img.src}`}?t="020"` || "" }} style={styles.image} />}
           {routine.vi ? (
-            <VideoComp rep={routine.vi.fr} source={`http://${ip}:3000/uploads${routine.vi.src}`} />
+            <VideoComp rep={routine.vi.fr} source={`${ip}/uploads${routine.vi.src}`} />
           ) : (
             <Text>Loading...</Text>
           )}
           {routine.au && 
-            <AudioComp rep={routine.au.fr} source={`http://${ip}:3000/uploads${routine.au.src}`}/>
+            <AudioComp rep={routine.au.fr} source={`${ip}/uploads${routine.au.src}`}/>
           }
           {type=="SR"?<>
             <Text>Streak:{routine.streak||""} Days</Text>

@@ -16,7 +16,7 @@ export const checkAndFetchStoreRoutineAll = async (routineIdArray) => {
       if (!routine) {
         // Fetch the routine from the remote source
         try {
-          const response = await fetch(`http://${ip}:3000/api/routines/getRoutine`,{
+          const response = await fetch(`${ip}/api/routines/getRoutine`,{
             method:'POST',
             headers:{
               'Content-Type':'application/json'
@@ -46,7 +46,7 @@ export const checkAndFetchStoreRoutineAll = async (routineIdArray) => {
 export const addRountineOnBackend=async (routine,token)=>{
   return new Promise(async(resolve,reject)=>{
     try {
-      const response = await fetch(`http://${ip}:3000/api/routines/addRoutine`,{
+      const response = await fetch(`${ip}/api/routines/addRoutine`,{
         method:'POST',
         headers:{
           'authorization':`Bearer ${token}`
@@ -70,7 +70,7 @@ export const deleteRountineOnBackend=async (routine,token)=>{
     try {
       console.log("hwhh",routine);
       
-      const response = await fetch(`http://${ip}:3000/api/routines/deleteRoutine`,{
+      const response = await fetch(`${ip}/api/routines/deleteRoutine`,{
         method:'POST',
         headers:{
           'content-type':"application/json",

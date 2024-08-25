@@ -6,7 +6,10 @@ export const useAuthStore = create((set) => ({
   setIsAuthenticated: (authState) => set({ isAuthenticated: authState }),
 }));
 
-export const ip='192.168.190.220';
+export const ip='http://192.168.190.220:3000'
+//'https://the-guru-ver-1.onrender.com/';
+//44.233.151.27
+//34.211.200.85';
 
 export const useDataStore=create((set)=>({
     token:"",

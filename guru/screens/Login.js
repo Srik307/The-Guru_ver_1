@@ -16,7 +16,7 @@ export default function LoginPage({ navigation }) {
 
 
   const Login=(email,password)=>{
-    fetch(`http://${ip}:3000/api/auth/login`,{
+    fetch(`${ip}/api/auth/login`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json'

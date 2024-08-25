@@ -8,7 +8,7 @@ import {ip,useAuthStore} from "../datastore/data"
 export const getuser = (token) => {
     return new Promise(async(resolve,reject)=>{
         console.log(token,"token");
-        fetch(`http://${ip}:3000/api/user/getuser`,{
+        fetch(`${ip}/api/user/getuser`,{
             method:'POST',
             headers:{
                 'Content-Type':'application/json',

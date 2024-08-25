@@ -33,7 +33,7 @@ export const deleteRoutineOnFrontend= async (routine,user) => {
 export const updateUser=async (user,token)=>{
     return new Promise(async(resolve,reject)=>{
         try {
-            const response = await fetch(`http://${ip}:3000/api/user/update`,{
+            const response = await fetch(`${ip}/api/user/update`,{
                 method:'POST',
                 headers:{
                     'Content-Type':'application/json',

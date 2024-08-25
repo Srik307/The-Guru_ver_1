@@ -19,7 +19,7 @@ const EditProfile = ({ navigation }) => {
     // Fetch user data from the backend
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`http://${ip}:3000/api/user/getuser`, {
+        const response = await fetch(`${ip}/api/user/getuser`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const EditProfile = ({ navigation }) => {
           }
         }
 
-        const response = await fetch(`http://${ip}:3000/api/user/update`, {
+        const response = await fetch(`${ip}/api/user/update`, {
           method: 'POST',
           headers: {
             'authorization': 'Bearer ' + token
@@ -98,7 +98,7 @@ const EditProfile = ({ navigation }) => {
         const responseData = await response.json();
         console.log("User data updated successfully:", responseData);
         let photo=responseData.photo;
-        console.log(`http://${ip}:3000/uploads${photo}`);
+        console.log(`${ip}/uploads${photo}`);
         setUser({...user,photo:`${photo}`});
       } catch (error) {
         console.log('Error updating user data:', error.message);
@@ -124,7 +124,7 @@ const EditProfile = ({ navigation }) => {
           <Image source={{ uri: image.uri }} style={styles.profileImage} />
         ) : (
           user.photo ? (
-            <Image source={{uri:`http://${ip}:3000/uploads/${user.photo}?t=${new Date().getTime()}`}}style={styles.profileImage} />
+            <Image source={{uri:`${ip}/uploads/${user.photo}?t=${new Date().getTime()}`}}style={styles.profileImage} />
           ) : (<View style={styles.placeholder}>
             <Text style={styles.placeholderText}>Pick an Image</Text>
           </View>)

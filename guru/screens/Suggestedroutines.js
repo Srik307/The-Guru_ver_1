@@ -17,7 +17,7 @@ const SuggestedRoutinesScreen = () => {
   useEffect(()=>{
     const fetchSuggested=async()=>{
       console.log('hb');
-    let res=await fetch(`http://${ip}:3000/api/routines/getsuggestedR`,{
+    let res=await fetch(`${ip}/api/routines/getsuggestedR`,{
           method:"POST"
         });
     res=await res.json();
