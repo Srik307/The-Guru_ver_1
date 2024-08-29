@@ -1,31 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { getQuestions } from '../controllers/UserControllers';
+import { useDataStore } from '../datastore/data';
 
 const SetGoal = ({ navigation }) => {  // Receive navigation as a prop
-  const [selectedOptions, setSelectedOptions] = useState([false, false, false]);
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const {user,token,setUser}=useDataStore();
+  const [questions,setQuestions]=useState([]);
 
-  const handleOptionPress = (index) => {
-    const newSelectedOptions = [...selectedOptions];
-    newSelectedOptions[index] = !newSelectedOptions[index];
-    setSelectedOptions(newSelectedOptions);
 
-    // Navigate to the Editprofile screen
-    navigation.navigate('Editprofile');
+  useEffect(() => {
+    getQuestions(token).then((data)=>{
+      console.log(data);
+      setQuestions(data.questions);
+    }
+    ).catch((err)=>{
+      console.log(err);
+    });
+  }, []); // Initialize selectedOptions state with an empty array
+
+
+  const handleOptionPress = (item,index) => {
+    setSelectedOptions({...selectedOptions,[item._id]:index});
+    console.log(selectedOptions);
+    
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.question}>1. Add the question</Text>
-      {selectedOptions.map((isSelected, index) => (
+      {questions.map((item, index) => (
+        <View>
+          <Text style={styles.question}>{index+1}.{item.ques}</Text>
+        {item.opt.map((i, ind) => (
         <TouchableOpacity
-          key={index}
-          style={[styles.option, isSelected && styles.optionSelected]}
-          onPress={() => handleOptionPress(index)}
-        />
+          key={ind}
+          style={[styles.option,selectedOptions[item._id]==ind && styles.optionSelected]}
+          onPress={() => handleOptionPress(item,ind)}
+        >
+          <Text>{i}</Text>
+          </TouchableOpacity>
+        ))}
+          </View>
       ))}
       <TouchableOpacity 
         style={styles.nextButton}
-        onPress={() => navigation.navigate('Editprofile')} // Navigate when the button is pressed
+        onPress={() => navigation.navigate('Profile',{questions:selectedOptions})} // Navigate when the button is pressed
       >
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>

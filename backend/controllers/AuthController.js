@@ -5,6 +5,8 @@ const {generateToken,verifyToken} = require('../middlewares/AuthToken');
 const register =async (req, res) => {
         try {
             let user = req.body;
+            console.log(user);
+            
             // Check if user already exists
             let existsuser = await
             Auth.findOne({email:user.email});
@@ -15,20 +17,21 @@ const register =async (req, res) => {
                     .json({msg: 'User already exists'});
             }
             // Create new user
-            user = new User(user);
+            const newuser = new User(user);
+            console.log(user);
+            
             let auth= new Auth({email:user.email,password:user.password});
             // Hash password
             const salt = await bcrypt.genSalt(10);
             const encryptedPassword= await bcrypt.hash(user.password, salt);
             auth.password = encryptedPassword;
-            user.password = encryptedPassword;
             // Save user
             await auth.save();
-            await user.save();
+            await newuser.save();
             // Create JWT;
-            const token=await generateToken(user);
+            const token=await generateToken(newuser);
             res
-            .status(200).json({token});
+            .status(200).json({user:newuser,token:token});
         } catch (err) {
             console.error(err);
             res

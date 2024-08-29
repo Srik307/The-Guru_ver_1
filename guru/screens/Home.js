@@ -2,7 +2,7 @@ import React, {useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Make sure you have installed @expo/vector-icons
 import { useNavigation } from '@react-navigation/native';
-import { useSchedule,useAuthStore, useDataStore} from '../datastore/data';
+import { useSchedule,useAuthStore, useDataStore,ip} from '../datastore/data';
 import { Retrieveit } from '../controllers/LocalStorage';
 
 const HomeScreen = () => {
@@ -15,7 +15,7 @@ const HomeScreen = () => {
     const LoadSchedule = async () => {
       try {
         const schedule1 = await Retrieveit("@schedule");
-        console.log("neeee",schedule1);
+        console.log("neeee",schedule1,`${ip}${user.photo}`);
         
         if (schedule1 !== null) {
           let date=new Date().toISOString().split('T')[0];
@@ -41,14 +41,6 @@ const HomeScreen = () => {
             source={require('../assets/i2.jpeg')}
             style={styles.image}
           />
-          
-          {/* Profile and other icon */}
-          <TouchableOpacity onPress={()=>navigation.navigate("Profile")} style={styles.profileIcon}>
-            <Ionicons name="person-circle-outline" size={40} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.otherIcon}             onPress={() => navigation.navigate('Settings')}>
-            <Ionicons name="settings-outline" size={30} color="white" />
-          </TouchableOpacity>
           
           {/* Wishing text, username, and quote */}
           <View style={styles.overlayTextContainer}>
@@ -89,6 +81,14 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 60,
+    marginBottom: 20,
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f8f8f8',

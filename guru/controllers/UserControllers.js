@@ -52,3 +52,27 @@ export const updateUser=async (user,token)=>{
 }
 
 
+export const getQuestions=async (token)=>{
+    return new Promise(async(resolve,reject)=>{
+        try {
+            const response = await fetch(`${ip}/api/user/questions`,{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'authorization':`Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            console.log(data);
+            resolve(data);
+        } catch (error) {
+            console.error('Error getQuestion:', error);
+            reject('Error getQuestion');
+        }
+    });
+}
+
+
+
+
+

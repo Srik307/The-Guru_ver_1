@@ -23,6 +23,7 @@ import { createStackNavigator, Header } from '@react-navigation/stack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from './datastore/data';
 import RoutineDetailsScreen from './screens/RoutineDetailsScreen';
+import HeaderComp from './components/HeaderComp';
 
 
 
@@ -48,13 +49,13 @@ function HomeTabs() {
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
-        },
+        }
       })}
     >
-      <Tab.Screen name="Home"  options={{ headerShown:true }}  component={Home} />
-      <Tab.Screen name="Routines" options={{ headerShown:false }} component={RoutinesStack} />
-      <Tab.Screen name="TaskManager" options={{ headerShown:false }} component={CalendarStack} />
-      <Tab.Screen name="Aiguru" component={AiChatbotScreen} />
+      <Tab.Screen name="Home" options={{header:()=>(<HeaderComp />)}} component={Home} />
+      <Tab.Screen name="Routines" options={{headerShown:false}} component={RoutinesStack} />
+      <Tab.Screen name="TaskManager" options={{headerShown:false}}   component={CalendarStack} />
+      <Tab.Screen name="Aiguru" options={{headerShown:false}}  component={AiChatbotScreen} />
     </Tab.Navigator>
   );
 }
@@ -81,7 +82,7 @@ function RoutinesStack() {
 
 function AuthStack({setAuth}) {
   return (
-    <Stack.Navigator initialRouteName="Login">
+    <Stack.Navigator screenOptions={{headerShown:false}} initialRouteName="Login">
       <Stack.Screen name="Login" component={LoginPage} />
       <Stack.Screen name="Signup" component={SignupPage} />
     </Stack.Navigator>
@@ -101,7 +102,8 @@ export default function App() {
     <NavigationContainer>
       {isAuthenticated ? (
         <Stack.Navigator>
-          <Stack.Screen name='Home' options={{ headerShown:false }} component={HomeTabs}/>
+          <Stack.Screen options={{headerShown:false}} name='Home' component={HomeTabs}/>
+          <Stack.Screen options={{headerShown:false}} name='SetG' component={SetGoal}/>
           <Stack.Screen options={{headerMode:'float'}} name="Profile" component={EditProfile} />
           <Stack.Screen options={{headerMode:'float'}} name='Settings' component={SettingsScreen} />
           <Stack.Screen options={{headerMode:'float'}} name='SuggestedRoutines' component={SuggestedRoutinesScreen} />

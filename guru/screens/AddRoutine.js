@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity,Button, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Button, ScrollView, Image, StyleSheet } from 'react-native';
 import React, { useEffect, useReducer, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,7 +8,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { Video } from 'expo-av';
 import { Retrieveit } from '../controllers/LocalStorage';
-import {useSchedule,useDataStore} from '../datastore/data';
+import { useSchedule, useDataStore } from '../datastore/data';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const initialState = {
   name: '',
@@ -25,7 +26,6 @@ const initialState = {
   startDate: '',
   endDate: ''
 };
-
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -60,10 +60,13 @@ const reducer = (state, action) => {
 
 const AddRoutineScreen = () => {
 
-  const {schedule,setSchedule}=useSchedule();
+  const { schedule, setSchedule } = useSchedule();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useNavigation();
-  const {user, setUser} = useDataStore();
+  const { user, setUser } = useDataStore();
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const handleInputChange = (type, value) => {
       dispatch({ type: type, value: value });
@@ -107,8 +110,8 @@ const AddRoutineScreen = () => {
                   type: 'audio/mpeg'
               });
           }
-          const token=await Retrieveit('token');
-          const {newuser,newschedule} = await createNewRoutine(user, state,formData,token);
+          const token = await Retrieveit('token');
+          const { newuser, newschedule } = await createNewRoutine(user, state, formData, token);
           setUser(newuser);
           setSchedule(newschedule);
           alert("Routine Added");
@@ -127,7 +130,6 @@ const AddRoutineScreen = () => {
           newDays = [...state.days, index];
       }
       console.log(state);
-      
       
       dispatch({ type: 'setdays', value: newDays });
   };
@@ -176,120 +178,153 @@ const AddRoutineScreen = () => {
       }
   };
 
+  const showDatePicker = (type) => {
+    if (type === 'start') {
+      setShowStartDatePicker(true);
+    } else {
+      setShowEndDatePicker(true);
+    }
+  };
+
+  const onChangeDate = (event, selectedDate, type) => {
+    setShowStartDatePicker(false);
+    setShowEndDatePicker(false);
+
+    if (selectedDate) {
+      const currentDate = selectedDate || new Date();
+      const formattedDate = currentDate.toISOString().split('T')[0];
+
+      if (type === 'start') {
+        handleInputChange('setStartDate', formattedDate);
+      } else {
+        handleInputChange('setEndDate', formattedDate);
+      }
+    }
+  };
+
+  const showDurationPicker = () => {
+    setShowTimePicker(true);
+  };
+
+  const onChangeTime = (event, selectedTime) => {
+    setShowTimePicker(false);
+
+    if (selectedTime) {
+      const minutes = selectedTime.getMinutes();
+      handleInputChange('setSelectedDuration', minutes);
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
         <Text style={styles.label}>Routine Name</Text>
-       <TextInput
-                    style={styles.input}
-                    placeholder='Enter Routine Name'
-                    onChangeText={(value) => handleInputChange('setSelectedValue', value)}
-                />
+        <TextInput
+          style={styles.input}
+          placeholder='Enter Routine Name'
+          onChangeText={(value) => handleInputChange('setSelectedValue', value)}
+        />
         <Text style={styles.label}>Description</Text>
         <TextInput
-                    style={styles.input}
-                    placeholder='Enter description'
-                    multiline
-                    onChangeText={(value) => handleInputChange('setSelectedDes', value)}
-                />
-        <Text style={styles.label}>Duration</Text>
-        <TextInput
-                    style={styles.input}
-                    placeholder='Enter Duration'
-                    keyboardType='numeric'
-                    onChangeText={(value) => handleInputChange('setSelectedDuration', parseInt(value))}
-                />
+          style={styles.input}
+          placeholder='Enter description'
+          multiline
+          onChangeText={(value) => handleInputChange('setSelectedDes', value)}
+        />
+        <Text style={styles.label}>Duration (in minutes)</Text>
+        <TouchableOpacity style={styles.input} onPress={showDurationPicker}>
+          <Text>{state.duration ? `${state.duration} minutes` : 'Select Duration'}</Text>
+        </TouchableOpacity>
+        {showTimePicker && (
+          <DateTimePicker
+            value={new Date(0, 0, 0, 0, state.duration)}
+            mode="time"
+            display="default"
+            onChange={onChangeTime}
+            minuteInterval={1}
+          />
+        )}
         <Text style={styles.label}>Repeat Count</Text>
         <TextInput
-                    style={styles.input}
-                    placeholder='Enter Repetition Count'
-                    keyboardType='numeric'
-                    onChangeText={(value) => handleInputChange('setSelectedfreq', value)}
-                />
+          style={styles.input}
+          placeholder='Enter Repetition Count'
+          keyboardType='numeric'
+          onChangeText={(value) => handleInputChange('setSelectedfreq', value)}
+        />
         <Text style={styles.label}>Time Slot</Text>
         <View style={styles.pickerContainer}>
           <Picker
-                    selectedValue={state.slot}
-                    style={styles.picker}
-                    onValueChange={(itemValue) => handleInputChange('setSelectedTimeSlot', itemValue)}
+            selectedValue={state.slot}
+            onValueChange={(value) => handleInputChange('setSelectedTimeSlot', value)}
           >
             <Picker.Item label="Select Time Slot" value="" />
-            <Picker.Item label="Morning" value="morning" />
-            <Picker.Item label="Afternoon" value="afternoon" />
-            <Picker.Item label="Evening" value="evening" />
-            <Picker.Item label="Night" value="night" />
+            <Picker.Item label="Morning" value="Morning" />
+            <Picker.Item label="Afternoon" value="Afternoon" />
+            <Picker.Item label="Evening" value="Evening" />
+            <Picker.Item label="Night" value="Night" />
           </Picker>
         </View>
-
         <Text style={styles.label}>Start Date</Text>
-        <TextInput
-                    style={styles.input}
-                    placeholder='Enter Start Date-(YYYY-MM-DD)'
-                    onChangeText={(value) => handleInputChange('setStartDate', value)}
-                    keyboardType='numeric'
-                />
+        <TouchableOpacity style={styles.input} onPress={() => showDatePicker('start')}>
+          <Text>{state.startDate ? state.startDate : 'Select Start Date'}</Text>
+        </TouchableOpacity>
+        {showStartDatePicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => onChangeDate(event, selectedDate, 'start')}
+          />
+        )}
         <Text style={styles.label}>End Date</Text>
-        <TextInput
-                    style={styles.input}
-                    placeholder='Enter End Date-(YYYY-MM-DD)'
-                    onChangeText={(value) => handleInputChange('setEndDate', value)}
-                    keyboardType='numeric'
-                />
-        <Text style={styles.label}>Days</Text>
+        <TouchableOpacity style={styles.input} onPress={() => showDatePicker('end')}>
+          <Text>{state.endDate ? state.endDate : 'Select End Date'}</Text>
+        </TouchableOpacity>
+        {showEndDatePicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => onChangeDate(event, selectedDate, 'end')}
+          />
+        )}
+        <Text style={styles.label}>Days of the Week</Text>
         <View style={styles.daysContainer}>
-                          <View style={styles.daysContainer}>
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={[
-                                styles.dayButton,
-                                state.days.includes(index) && styles.activeDayButton
-                            ]}
-                            onPress={() => changeActive(index)}
-                        >
-                            <Text style={styles.dayButtonText}>{day}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.dayButton,
+                state.days.includes(index) && styles.dayButtonActive
+              ]}
+              onPress={() => changeActive(index)}
+            >
+              <Text>{day}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-
-        <Text style={styles.label}>Image</Text>
-        <TouchableOpacity style={styles.mediaButton} onPress={() => selectFile('photo')} >
-          <Text style={styles.mediaButtonText}>Select Image</Text>
+        <Text style={styles.label}>Upload Image</Text>
+        <TouchableOpacity style={styles.fileButton} onPress={() => selectFile('photo')}>
+          <Text>{state.img.src ? 'Image Selected' : 'Select Image'}</Text>
         </TouchableOpacity>
-        {state.img.src ? (
-                    <Image source={{ uri: state.img.src }} style={{ width: 100, height: 100 }} />
-                ) : null}
-
-        <Text style={styles.label}>Video</Text>
-
-        <TouchableOpacity style={styles.mediaButton} onPress={() => selectFile('video')}>
-          <Text style={styles.mediaButtonText}>Select Video</Text>
+        {state.img.src && <Image source={{ uri: state.img.src }} style={styles.imagePreview} />}
+        <Text style={styles.label}>Upload Video</Text>
+        <TouchableOpacity style={styles.fileButton} onPress={() => selectFile('video')}>
+          <Text>{state.vi.src ? 'Video Selected' : 'Select Video'}</Text>
         </TouchableOpacity>
-        {state.vi.src ? (
-                    <Video
-                        source={{ uri: state.vi.src }}
-                        rate={1.0}
-                        volume={1.0}
-                        isMuted={false}
-                        resizeMode="cover"
-                        shouldPlay
-                        isLooping
-                        style={{ width: 300, height: 300 }}
-                    />
-                ) : null}
-
-        <Text style={styles.label}>Audio</Text>
-        <TouchableOpacity style={styles.mediaButton} onPress={() => selectFile('audio')}>
-          <Text style={styles.mediaButtonText}>Select Audio</Text>
+        {state.vi.src && (
+          <Video
+            source={{ uri: state.vi.src }}
+            style={styles.videoPreview}
+            useNativeControls
+            resizeMode="contain"
+          />
+        )}
+        <Text style={styles.label}>Upload Audio</Text>
+        <TouchableOpacity style={styles.fileButton} onPress={() => selectFile('audio')}>
+          <Text>{state.audio.src ? 'Audio Selected' : 'Select Audio'}</Text>
         </TouchableOpacity>
-        {state.audio.src ? (
-                    <Text style={styles.audioPreview}>{state.audio.src.split('/').pop()}</Text>
-                ) : null}
-
-        <TouchableOpacity style={styles.submitButton} onPress={() => addRoutine('cr')} >
-          <Text style={styles.submitButtonText}>Add Routine</Text>
-        </TouchableOpacity>
+        <Button title="Submit" color="orange" onPress={addRoutine} />
       </View>
     </ScrollView>
   );
@@ -297,84 +332,64 @@ const AddRoutineScreen = () => {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    paddingBottom: 20,
+    flexGrow: 1,
+    paddingBottom: 20
   },
   container: {
-    flex: 1,
-    backgroundColor: '#f9a825',
-    padding: 20,
+    padding: 20
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#000',
+    marginBottom: 10
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     padding: 10,
-    marginBottom: 15,
-    fontSize: 16,
+    marginBottom: 20
   },
   pickerContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 20
   },
   daysContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 15
-},
-dayButton: {
+    justifyContent: 'space-between',
+    marginBottom: 20
+  },
+  dayButton: {
     padding: 10,
-    margin: 5,
-    backgroundColor: '#f0f0f0',
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 5
-},
-activeDayButton: {
-    backgroundColor: '#fd8b17',
-},
-dayButtonText: {
-    color: '#000'
-},
-  media: {
+  },
+  dayButtonActive: {
+    backgroundColor: 'orange',
+    borderColor: 'orange'
+  },
+  fileButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 20
+  },
+  imagePreview: {
     width: '100%',
     height: 200,
-    marginBottom: 10,
-    borderRadius: 10,
+    resizeMode: 'contain',
+    marginBottom: 20
   },
-  mediaButton: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  mediaButtonText: {
-    color: '#000',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  mediaText: {
-    marginBottom: 10,
-    color: '#000',
-  },
-  submitButton: {
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 10,
-    alignSelf: 'flex-end',
-    marginTop: 20,
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
+  videoPreview: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'contain',
+    marginBottom: 20
+  }
 });
 
 export default AddRoutineScreen;

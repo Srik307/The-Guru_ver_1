@@ -17,6 +17,11 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.myapp.guru"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bea8e145-0b48-4c54-9264-91a1f237e60c"
+      }
     }
   }
 }

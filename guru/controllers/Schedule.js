@@ -109,7 +109,7 @@ export async function getSchedule() {
 export function addRoutineToSchedule(schedule, routine, startDate, endDate) {
     return new Promise(async(resolve, reject) => {
         startDate = routine.startDate;
-        console.log(routine, 'routine');
+        console.log('routine',routine);
         if (routine.cate == 'AR') {
             startDate=format(new Date(), 'yyyy-MM-dd');
             endDate = getNthDateFromToday(routine.streak);

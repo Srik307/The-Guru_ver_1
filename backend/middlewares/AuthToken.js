@@ -9,8 +9,7 @@ const generateToken = (user) => {
         jwt.sign(
             {
                 id: user._id,
-                email: user.email,
-                role: user.role // Include role in the token payload
+                email: user.email
             },
             process.env.SECRET_KEY,
             (err, token) => {

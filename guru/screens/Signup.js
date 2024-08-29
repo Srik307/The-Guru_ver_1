@@ -1,13 +1,59 @@
-import React from 'react';
+import React, { useReducer } from 'react';
 import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { signUp } from '../controllers/AuthControllers';
+import { Storeit } from '../controllers/LocalStorage';
+import { useAuthStore,useDataStore } from '../datastore/data';
+import { postLogin } from '../controllers/Operations';
+
+const initialState = {
+  email: '',
+  password: '',
+  confirmPassword: ''
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_EMAIL':
+      return { ...state, email: action.payload };
+    case 'SET_PASSWORD':
+      return { ...state, password: action.payload };
+    case 'SET_CONFIRM_PASSWORD':
+      return { ...state, confirmPassword: action.payload };
+    default:
+      return state;
+  }
+}
 
 export default function SignupPage({ navigation }) {
-  
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const {setToken}=useDataStore();
+  const {isAuthenticated,setIsAuthenticated}=useAuthStore();
+
+  const signup=async()=>{
+    if(state.confirmPassword!=state.password){
+      alert("Password and Confirm Password should be same");
+      return;
+    }
+    signUp(state).then(async (data)=>{
+      alert(data.token);
+      console.log("koko",data);
+      await Storeit("token",data.token);
+      setToken(data.token);
+      await postLogin(data.user,data.token);
+      setIsAuthenticated(true);
+      navigation.navigate('SetG');
+    }
+    ).catch((err)=>{
+      console.log(err);
+    });
+  }
+
+
+
   return (
     <View style={styles.container}>
-      {/* Ensure the image format is correct */}
       <Image 
-        source={require('../assets/i1.png')}  // Ensure this file is a PNG or the correct format
+        source={require('../assets/i3.png')}  // Ensure this file is a PNG or the correct format
         style={styles.image} 
       />
       <Text style={styles.headerText}>New To Application</Text>
@@ -17,31 +63,25 @@ export default function SignupPage({ navigation }) {
         placeholder="Enter Email"
         style={styles.input}
         keyboardType="email-address"
+        value={state.email}
+        onChangeText={(text) => dispatch({ type: 'SET_EMAIL', payload: text })}
       />
       <TextInput 
-        placeholder="Enter password"
-        secureTextEntry
+        placeholder="Enter Password"
         style={styles.input}
+        secureTextEntry
+        value={state.password}
+        onChangeText={(text) => dispatch({ type: 'SET_PASSWORD', payload: text })}
       />
       <TextInput 
-        placeholder="Confirm password"
-        secureTextEntry
+        placeholder="Confirm Password"
         style={styles.input}
+        secureTextEntry
+        value={state.confirmPassword}
+        onChangeText={(text) => dispatch({ type: 'SET_CONFIRM_PASSWORD', payload: text })}
       />
-      
-      <TouchableOpacity 
-        style={styles.signupButton}
-        onPress={() => navigation.navigate('Welcome')}  // Correct navigation call
-      >
-        <Text style={styles.signupButtonText}>Sign Up</Text>
-      </TouchableOpacity>
-      
-      <Text style={styles.orText}>or</Text>
-      
-      <TouchableOpacity>
-        <Text style={styles.alreadyHaveAccountText}>
-          If you already have an account Click here to <Text style={styles.signupLink}>Login</Text>
-        </Text>
+      <TouchableOpacity style={styles.signupButton} onPress={signup}>
+        <Text style={styles.signupButtonText}>Signup</Text>
       </TouchableOpacity>
     </View>
   );

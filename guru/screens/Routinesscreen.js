@@ -9,14 +9,18 @@ import { useDataStore ,useSchedule} from '../datastore/data';
 import {ip} from "../datastore/data";
 import { deleteRoutine } from '../controllers/Operations';
 import { Retrieveit } from '../controllers/LocalStorage';
+import { set } from 'date-fns';
 
 
 const RoutinesScreen = () => {
 
   const {user,setUser}=useDataStore();
   const {schedules,setSchedule}=useSchedule();
-  
-  const [routines, setRoutines] = useState(user.routines||[]); // Initialize routines state with an empty array
+  const [routines, setRoutines] = useState(user.routines||[]);
+
+  useEffect(()=>{
+    setRoutines(user.routines);
+  },[]); // Initialize routines state with an empty array
   const navigation = useNavigation(); // Initialize navigation
 
   const handleRoutinePress = (routine) => {

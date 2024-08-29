@@ -1,4 +1,4 @@
-const {User,Auth}=require('../database/model');
+const {User,Auth,Questions}=require('../database/model');
 const bcrypt = require('bcryptjs');
 const {generateToken,verifyToken} = require('../middlewares/AuthToken');
 const {ObjectID} = require('mongodb');
@@ -26,12 +26,37 @@ const getuser =async (req, res) => {
 }
 
 
+const getQuestions = async (req, res) => {
+    try {
+        let token = req.headers.authorization;
+        token=token.split(' ')[1];
+        let user_id=await verifyToken(token);
+        if(!user_id){return res.status(401).json({msg:"Unauthorized"})};
+        const questions=await Questions.find({}).exec();
+        console.log(questions);
+        res
+            .status(200)
+            .json({msg:"done",questions:questions});
+    }
+    catch (err) {
+        console.error(err);
+        res
+            .status(500)
+            .send('Server Error');
+    }
+}
+
 const UpdateUserDetails=async (req,res)=>{
     try {
         let token = req.headers.authorization;
         token=token.split(' ')[1];
         let user_id=await verifyToken(token);
         let user_data = req.body;
+        if(user_data.questions!=undefined){
+        const questions=JSON.parse(user_data.questions);
+        console.log(questions);
+        user_data.questions=questions;
+        }
         let photo
         if(req.file){
         photo=req.file.path.split('uploads')[1];
@@ -55,4 +80,4 @@ const UpdateUserDetails=async (req,res)=>{
 
 
 
-module.exports={getuser,UpdateUserDetails};
+module.exports={getuser,UpdateUserDetails,getQuestions};

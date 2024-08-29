@@ -22,7 +22,6 @@ const AiChatbotScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Ionicons name="arrow-back-outline" size={24} color="black" />
         <Text style={styles.headerTitle}>AI Chatbot</Text>
         <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
       </View>
@@ -63,6 +62,7 @@ const AiChatbotScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop:40,
     backgroundColor: 'white',
   },
   header: {

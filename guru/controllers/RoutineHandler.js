@@ -33,7 +33,8 @@ export const checkAndFetchStoreRoutineAll = async (routineIdArray) => {
       }
   
       if (routine) {
-        fetchedRoutines.push(routine);
+        if(routine.error==undefined){
+        fetchedRoutines.push(routine);}
       }
     }
   

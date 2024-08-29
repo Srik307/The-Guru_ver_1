@@ -1,23 +1,35 @@
 import React, { useState, useEffect } from 'react';
-
-import { View, TextInput, TouchableOpacity, Image, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, SafeAreaView 
- ,Button
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Text,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  Button
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useDataStore } from '../datastore/data';
-import {ip} from "../datastore/data";
+import { ip } from "../datastore/data";
+import { Picker } from '@react-native-picker/picker'; // Import Picker
+import { Retrieveit } from '../controllers/LocalStorage';
 
-
-
-const EditProfile = ({ navigation }) => {
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2OWY0NWJlZjJmYzZiYjllMjNlNWYwZSIsImVtYWlsIjoibXIuc3JpazMwN0BnbWFpbC5jb20iLCJpYXQiOjE3MjI0OTA4MDh9.GF8hDo2qDwyDITNQ28KNG5VmQv_7ycRwOc3fqMBLJs4';
-  const {user,setUser}=useDataStore();
+const EditProfile = ({route,navigation }) => {
+  const { user, setUser ,token} = useDataStore();
   const [image, setImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-
+  const {questions} = route.params||0;
+  
   useEffect(() => {
     // Fetch user data from the backend
     const fetchUserData = async () => {
+      if(questions!=undefined){
+        setIsEditing(true);
+      }
       try {
         const response = await fetch(`${ip}/api/user/getuser`, {
           method: 'POST',
@@ -49,7 +61,7 @@ const EditProfile = ({ navigation }) => {
         aspect: [4, 3],
         quality: 1,
       });
-  
+
       if (!result.canceled && result.assets && result.assets.length > 0) {
         setImage(result.assets[0]);
       }
@@ -68,10 +80,13 @@ const EditProfile = ({ navigation }) => {
         formData.append('age', user.age);
         formData.append('profession', user.profession);
         formData.append('sex', user.sex);
+        if(questions!=undefined){
+        console.log("jjj",questions);
+        formData.append('questions', JSON.stringify(questions));}
         if (image) {
           try {
             console.log(user._id);
-            
+
             const filePath = image.uri;
             const file = {
               uri: filePath,
@@ -79,6 +94,7 @@ const EditProfile = ({ navigation }) => {
               type: 'image/jpeg'
             };
             formData.append('profileImage', file);
+            console.log("Image added to form data");
           } catch (error) {
             console.error('Error reading image file:', error);
             return;
@@ -97,9 +113,12 @@ const EditProfile = ({ navigation }) => {
         }
         const responseData = await response.json();
         console.log("User data updated successfully:", responseData);
-        let photo=responseData.photo;
+        let photo = responseData.photo;
         console.log(`${ip}/uploads${photo}`);
-        setUser({...user,photo:`${photo}`});
+        setUser({ ...user, photo: `${photo}` });
+        if(questions!=undefined){
+          navigation.navigate("Home");
+        }
       } catch (error) {
         console.log('Error updating user data:', error.message);
       }
@@ -118,67 +137,92 @@ const EditProfile = ({ navigation }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.container}>
-      <TouchableOpacity onPress={isEditing?pickImage:()=>{}}>
-        {image ? (
-          <Image source={{ uri: image.uri }} style={styles.profileImage} />
-        ) : (
-          user.photo ? (
-            <Image source={{uri:`${ip}/uploads/${user.photo}?t=${new Date().getTime()}`}}style={styles.profileImage} />
-          ) : (<View style={styles.placeholder}>
-            <Text style={styles.placeholderText}>Pick an Image</Text>
-          </View>)
-        )}
-      </TouchableOpacity>
-      {isEditing ? (
-        <>
-          <Text style={styles.label}>Name</Text>
-          <TextInput
-            style={styles.input}
-            value={user.name}
-            onChangeText={(text) => handleInputChange('name', text)}
-          />
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={user.email}
-            onChangeText={(text) => handleInputChange('email', text)}
-          />
-          <Text style={styles.label}>Age</Text>
-          <TextInput
-            style={styles.input}
-            value={user.age}
-            onChangeText={(text) => handleInputChange('age', text)}
-          />
-          <Text style={styles.label}>Profession</Text>
-          <TextInput
-            style={styles.input}
-            value={user.profession}
-            onChangeText={(text) => handleInputChange('profession', text)}
-          />
-          <Text style={styles.label}>Sex</Text>
-          <TextInput
-            style={styles.input}
-            value={user.sex}
-            onChangeText={(text) => handleInputChange('sex', text)}
-          />
-        </>
-      ) : (
-        <>
-          <Text style={styles.label}>Name</Text>
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.email}>{user.email}</Text>
-          <Text style={styles.label}>Age</Text>
-          <Text style={styles.bio}>{user.age}</Text>
-          <Text style={styles.label}>Profession</Text>
-          <Text style={styles.bio}>{user.profession}</Text>
-          <Text style={styles.label}>Sex</Text>
-          <Text style={styles.bio}>{user.sex}</Text>
-        </>
-      )}
-      <Button title={isEditing ? "Save" : "Edit Profile"} onPress={toggleEditMode} />
-    </View>
+          <View style={styles.container}>
+            <TouchableOpacity onPress={isEditing ? pickImage : () => { }}>
+              {image ? (
+                <Image source={{ uri: image.uri }} style={styles.profileImage} />
+              ) : (
+                user.photo ? (
+                  <Image source={{ uri: `${ip}/uploads/${user.photo}?t=${new Date().getTime()}` }} style={styles.profileImage} />
+                ) : (<View style={styles.placeholder}>
+                  <Text style={styles.placeholderText}>Pick an Image</Text>
+                </View>)
+              )}
+            </TouchableOpacity>
+            {isEditing ? (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Name</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={user.name}
+                    onChangeText={(text) => handleInputChange('name', text)}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Email</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={user.email}
+                    onChangeText={(text) => handleInputChange('email', text)}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Age</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={user.age}
+                    onChangeText={(text) => handleInputChange('age', text)}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Profession</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={user.profession}
+                    onChangeText={(text) => handleInputChange('profession', text)}
+                  />
+                </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Sex</Text>
+                  <Picker
+                    selectedValue={user.sex}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => handleInputChange('sex', itemValue)}
+                  >
+                    <Picker.Item label="Male" value="Male" />
+                    <Picker.Item label="Female" value="Female" />
+                  </Picker>
+                </View>
+              </>
+            ) : (
+              <>
+                <View style={styles.infoGroup}>
+                  <Text style={styles.label}>Name</Text>
+                  <Text style={styles.value}>{user.name}</Text>
+                </View>
+                <View style={styles.infoGroup}>
+                  <Text style={styles.label}>Email</Text>
+                  <Text style={styles.value}>{user.email}</Text>
+                </View>
+                <View style={styles.infoGroup}>
+                  <Text style={styles.label}>Age</Text>
+                  <Text style={styles.value}>{user.age}</Text>
+                </View>
+                <View style={styles.infoGroup}>
+                  <Text style={styles.label}>Profession</Text>
+                  <Text style={styles.value}>{user.profession}</Text>
+                </View>
+                <View style={styles.infoGroup}>
+                  <Text style={styles.label}>Sex</Text>
+                  <Text style={styles.value}>{user.sex}</Text>
+                </View>
+              </>
+            )}
+            <TouchableOpacity style={styles.button} onPress={toggleEditMode}>
+              <Text style={styles.buttonText}>{isEditing ? "Save" : "Edit Profile"}</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -189,7 +233,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingBottom: 30, // Adjust the padding as needed
+    paddingBottom: 30,
   },
   container: {
     backgroundColor: '#f5a623',
@@ -199,15 +243,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     marginBottom: 20,
+    borderWidth: 3,
+    borderColor: '#fff',
   },
   placeholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: '#ccc',
     alignItems: 'center',
     justifyContent: 'center',
@@ -216,21 +262,16 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: '#fff',
   },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  inputGroup: {
+    width: '100%',
+    marginBottom: 15,
   },
-  email: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 10,
-  },
-  bio: {
+  label: {
+    alignSelf: 'flex-start',
+    marginLeft: '10%',
+    marginBottom: 5,
     fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
+    color: '#333',
   },
   input: {
     width: '80%',
@@ -239,14 +280,45 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    marginBottom: 10,
+    alignSelf: 'center',
   },
-  label: {
-    alignSelf: 'flex-start',
-    marginLeft: '10%',
-    marginBottom: 5,
+  picker: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    alignSelf: 'center',
+  },
+  infoGroup: {
+    width: '100%',
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  value: {
+    fontSize: 18,
+    color: '#666',
+    alignSelf: 'center',
+    width: '80%',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: 'white',  // Background color of the button
+    borderColor: 'black',     // Border color   
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'orange',  // Text color
     fontSize: 16,
-    color: '#333',
+    fontWeight: 'bold',
   },
 });
 

@@ -12,6 +12,10 @@ const AuthSchema=new mongoose.Schema({
 });
 
 
+const QuestionSchema=new mongoose.Schema({
+  ques:String,
+  opt:[String]
+});
 
 
 const UserMetaSchema = new mongoose.Schema({
@@ -31,7 +35,8 @@ const UserSchema = new mongoose.Schema({
   sex: String,
   profession: String,
   photo: String,
-  routines: [Object]
+  routines: [Object],
+  questions:Object
 });
 
 
@@ -84,4 +89,4 @@ const RoutineSchema = new mongoose.Schema({
 
 
 
-module.exports= {AuthSchema,UserSchema,RoutineSchema};
+module.exports= {AuthSchema,UserSchema,RoutineSchema,QuestionSchema};
