@@ -4,6 +4,7 @@ import {ip} from "../datastore/data"
 
 export const signUp=(details)=>{
     return new Promise((resolve,reject)=>{
+        console.warn("hi",details);
         fetch(`${ip}/api/auth/register`,{
             method:"POST",
             headers:{

@@ -24,8 +24,6 @@ export default function RoutineDetailsScreen({ route, navigation }) {
         const routine = await Retrieveit(routinemeta.r_id);
         console.log(routinemeta);
         console.log(routine,"routine");
-        
-        console.log(routine.vi.src);
         setRoutine(routine);
       } catch (error) {
         console.error('Error fetching routine:', error);
@@ -63,6 +61,7 @@ export default function RoutineDetailsScreen({ route, navigation }) {
         setUser(newuser);
         setSchedule(newschedule);
         alert("Suggested Routine Added");
+        navigation.navigate('Routines');
     } catch (error) {
         console.error(error);
     }
@@ -78,7 +77,7 @@ export default function RoutineDetailsScreen({ route, navigation }) {
           {routine.vi ? (
             <VideoComp rep={routine.vi.fr} source={`${ip}/uploads${routine.vi.src}`} />
           ) : (
-            <Text>Loading...</Text>
+            <Text></Text>
           )}
           {routine.au && 
             <AudioComp rep={routine.au.fr} source={`${ip}/uploads${routine.au.src}`}/>

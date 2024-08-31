@@ -116,9 +116,7 @@ const EditProfile = ({route,navigation }) => {
         let photo = responseData.photo;
         console.log(`${ip}/uploads${photo}`);
         setUser({ ...user, photo: `${photo}` });
-        if(questions!=undefined){
           navigation.navigate("Home");
-        }
       } catch (error) {
         console.log('Error updating user data:', error.message);
       }

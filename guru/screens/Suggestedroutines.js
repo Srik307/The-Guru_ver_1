@@ -66,10 +66,21 @@ const SuggestedRoutinesScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View>
       <Text style={styles.headerText}>
         We have crafted this based on your profile
       </Text>
+      <FlatList
+        data={routines}
+        renderItem={renderTaskItem}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.tasksList}
+      />
+      </View>
 
+      <Text style={{fontSize:20}}>
+        Built-In
+      </Text>
       <FlatList
         data={routines}
         renderItem={renderTaskItem}

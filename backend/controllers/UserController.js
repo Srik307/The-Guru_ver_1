@@ -52,7 +52,8 @@ const UpdateUserDetails=async (req,res)=>{
         token=token.split(' ')[1];
         let user_id=await verifyToken(token);
         let user_data = req.body;
-        if(user_data.questions!=undefined){
+        console.log(user_data.questions)
+        if(typeof(user_data.questions)!='object' && user_data.questions!=undefined){
         const questions=JSON.parse(user_data.questions);
         console.log(questions);
         user_data.questions=questions;

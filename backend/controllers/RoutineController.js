@@ -24,6 +24,7 @@ const addRoutine = async (req, res) => {
         token=token.split(' ')[1];
         let user_id=await verifyToken(token);
         let routine_data = {...req.body};
+        console.log(routine_data.days);
         let days=JSON.parse(routine_data.days);
         routine_data.days=days;
         console.log(req.files['img']);
